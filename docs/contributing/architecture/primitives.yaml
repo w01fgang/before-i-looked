@@ -112,9 +112,9 @@ primitives:
     group: data
     name: Run log fixtures
     summary: >-
-      runs/<night>.jsonl holds the run log of one real night. Each line is one JSON object with
-      at, job, status and owner. The last line of 2026-10-28.jsonl is cut off and does not parse.
-      The files are read-only fixtures.
+      runs/<night>.jsonl holds the run log of one real night. Each complete line is one JSON
+      object with at, job, status, owner and an optional error. The last line of
+      2026-10-28.jsonl is cut off and does not parse. The files are read-only fixtures.
     code:
       - runs/
     docs:
