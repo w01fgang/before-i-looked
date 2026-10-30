@@ -78,7 +78,8 @@ primitives:
     name: App routes
     summary: >-
       createApp() builds the Hono app. GET /health returns ok and the lane id as JSON. GET /
-      renders the status board inside the layout. Route tests call app.request().
+      renders the status board inside the layout. GET /digest/:night and GET /api/digest/:night
+      serve the night digest. Route tests call app.request().
     code:
       - src/app.tsx
       - test/
@@ -103,7 +104,7 @@ primitives:
       readStatus() collects the adapter and install time from the RigConfig, the last beat and
       the nights on disk. nightsOnDisk() returns the dates of the YYYY-MM-DD.jsonl files in
       runsDir, newest first. readStatus() adds each night's ok, retry and fail counts from readNight(),
-      or null when the file is gone. StatusBoard renders a table and a list; each night links to
+      or null when its file cannot be read. StatusBoard renders a table and a list; each night links to
       /digest/<night> with its counts, or — when the counts are null.
     code:
       - src/status.ts
