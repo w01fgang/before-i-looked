@@ -100,7 +100,14 @@ function classify(files, maps) {
   return { touched, unowned };
 }
 
+// A path counts only when git tracks it, so a check that passes here also passes in a clean checkout.
+function trackedIn(repoRoot) {
+  const files = git(['ls-files', '-z'], repoRoot).split('\0').filter(Boolean);
+  return (p) => (p.endsWith('/') ? files.some((f) => f.startsWith(p)) : files.includes(p));
+}
+
 function checkMap(map, repoRoot) {
+  const tracked = trackedIn(repoRoot);
   const errors = map.unparsed.map((line) => `line ${line}: cannot parse this line`);
   if (!map.versions.length) errors.push('missing version: 1');
   for (const line of map.versions.slice(1)) errors.push(`line ${line}: duplicate version`);
@@ -136,17 +143,20 @@ function checkMap(map, repoRoot) {
         const full = path.join(repoRoot, root);
         if (!existsSync(full)) errors.push(`${where}: code root ${root} does not exist`);
         else if (!root.endsWith('/') && !statSync(full).isFile()) errors.push(`${where}: code root ${root} is a directory; end it with /`);
+        else if (!tracked(root)) errors.push(`${where}: code root ${root} is not tracked by git; git add it`);
       }
       for (const doc of entry.docs) {
         if (BAD_ROOT.test(doc)) errors.push(`${where}: doc ${doc} is not a plain repo-relative path`);
         else if (!existsSync(path.join(repoRoot, doc))) errors.push(`${where}: doc ${doc} does not exist`);
+        else if (!tracked(doc)) errors.push(`${where}: doc ${doc} is not tracked by git; git add it`);
       }
     }
   }
   return errors;
 }
 
-const git = (args, cwd) => execFileSync('git', args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+const git = (args, cwd) =>
+  execFileSync('git', args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], maxBuffer: 256 * 1024 * 1024 });
 
 function defaultBase(cwd) {
   const head = spawnSync('git', ['symbolic-ref', '--short', 'refs/remotes/origin/HEAD'], { cwd, encoding: 'utf8' });
