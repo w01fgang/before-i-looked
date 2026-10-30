@@ -16,7 +16,12 @@ const css = `
   th { color: var(--mute); font-weight: normal; }
   .warn { color: var(--warn); }
   .mute { color: var(--mute); }
-  table.digest td { white-space: nowrap; }
+  table.digest td { overflow-wrap: anywhere; }
+  @media (min-width: 68.0625rem) {
+    table.digest td:nth-child(n+3):not(:nth-child(6)) { white-space: nowrap; }
+    table.digest td:nth-child(1) { min-width: 18ch; }
+    table.digest td:nth-child(2) { min-width: 8ch; }
+  }
   @media (max-width: 40rem) {
     body { font-size: 13px; }
     header { flex-wrap: wrap; gap: .25rem 1rem; padding: .75rem; }
@@ -26,7 +31,7 @@ const css = `
     table.digest thead { display: none; }
     table.digest, table.digest tbody, table.digest tr, table.digest td { display: block; }
     table.digest tr { padding: .5rem 0; border-bottom: 1px solid var(--line); }
-    table.digest td { border: 0; padding: .1rem 0; white-space: normal; overflow-wrap: anywhere; }
+    table.digest td { border: 0; padding: .1rem 0; }
     table.digest td:first-child { font-weight: bold; }
     table.digest td:not(:first-child)::before { display: inline-block; min-width: 7.5rem; color: var(--mute); }
     table.digest td:nth-child(2)::before { content: "owner"; }
