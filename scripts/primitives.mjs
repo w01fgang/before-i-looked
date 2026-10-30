@@ -100,10 +100,14 @@ function classify(files, maps) {
   return { touched, unowned };
 }
 
-// A path counts only when git tracks it, so a check that passes here also passes in a clean checkout.
+// A path counts only when it is in the git index. An ignored or untracked path fails here, before
+// the commit, and not later in a clean checkout. A directory counts when the index holds a file under it.
 function trackedIn(repoRoot) {
   const files = git(['ls-files', '-z'], repoRoot).split('\0').filter(Boolean);
-  return (p) => (p.endsWith('/') ? files.some((f) => f.startsWith(p)) : files.includes(p));
+  return (p) => {
+    const dir = p.endsWith('/') ? p : `${p}/`;
+    return files.some((f) => f === p || f.startsWith(dir));
+  };
 }
 
 function checkMap(map, repoRoot) {
