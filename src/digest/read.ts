@@ -41,7 +41,7 @@ export const readNight: ReadNight = (runsDir, night) => {
   const counts: Record<RunStatus, number> = { ok: 0, retry: 0, fail: 0 };
   let badLines = 0;
 
-  for (const raw of text.split('\n')) {
+  for (const raw of text.replace(/^\uFEFF/, '').split('\n')) {
     if (raw.trim() === '') continue;
     const line = parseLine(raw);
     if (!line) {

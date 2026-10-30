@@ -77,6 +77,15 @@ describe('readNight', () => {
     });
   });
 
+  it('reads the first line of a file saved with a UTF-8 BOM as a job', () => {
+    const dir = runsWith({
+      '2026-11-03.jsonl': '\uFEFF{"at":"2026-11-03T01:00:00+01:00","job":"a","status":"ok","owner":"rook"}\r\n',
+    });
+    const night = readNight(dir, '2026-11-03');
+    expect(night?.rows.map((r) => r.job)).toEqual(['a']);
+    expect(night?.badLines).toBe(0);
+  });
+
   it('counts valid JSON with the wrong shape as a bad line, never as a job', () => {
     const dir = runsWith({
       '2026-11-02.jsonl': [
