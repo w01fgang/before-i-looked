@@ -102,7 +102,9 @@ primitives:
     summary: >-
       readStatus() collects the adapter and install time from the RigConfig, the last beat and
       the nights on disk. nightsOnDisk() returns the dates of the YYYY-MM-DD.jsonl files in
-      runsDir, newest first. StatusBoard renders them as a table and a list.
+      runsDir, newest first. readStatus() adds each night's ok, retry and fail counts from readNight(),
+      or null when the file is gone. StatusBoard renders a table and a list; each night links to
+      /digest/<night> with its counts, or — when the counts are null.
     code:
       - src/status.ts
       - src/views/status.tsx

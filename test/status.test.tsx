@@ -17,6 +17,22 @@ describe('status board', () => {
     expect(html).toContain('2026-10-28');
   });
 
+  it('links each night to its digest so the board leads to the page', async () => {
+    const html = await (await createApp(config).request('/')).text();
+    expect(html).toContain('<a href="/digest/2026-10-28">2026-10-28</a>');
+    expect(html).toContain('<a href="/digest/2026-10-27">2026-10-27</a>');
+  });
+
+  it('shows the ok, retry and fail counts of a night with failures', async () => {
+    const html = await (await createApp(config).request('/')).text();
+    expect(html).toContain('ok 10 · retry 4 · fail 1');
+  });
+
+  it('shows zero retry and fail counts for a clean night', async () => {
+    const html = await (await createApp(config).request('/')).text();
+    expect(html).toContain('ok 7 · retry 0 · fail 0');
+  });
+
   it('health answers with the lane id', async () => {
     vi.stubEnv('LANE_ID', undefined);
     const res = await createApp(config).request('/health');
