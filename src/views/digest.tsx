@@ -17,7 +17,7 @@ export function DigestView({ digest }: { digest: NightDigest }) {
       {digest.rows.length === 0 ? (
         <p class="mute">nothing ran</p>
       ) : (
-        <table>
+        <table class="digest">
           <thead>
             <tr>
               <th>job</th>

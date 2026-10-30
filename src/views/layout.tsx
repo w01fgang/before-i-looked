@@ -10,12 +10,33 @@ const css = `
   body { margin: 0; font: 15px/1.5 ui-monospace, "SF Mono", Menlo, Consolas, monospace; color: var(--fg); background: var(--bg); }
   header { display: flex; gap: 1.5rem; padding: .75rem 1.25rem; border-bottom: 1px solid var(--line); }
   header .marker { margin-left: auto; color: var(--mute); }
-  main { padding: 1.25rem; max-width: 60rem; }
+  main { padding: 1.25rem; max-width: 66rem; }
   table { border-collapse: collapse; width: 100%; }
   th, td { text-align: left; padding: .35rem .75rem .35rem 0; border-bottom: 1px solid var(--line); }
   th { color: var(--mute); font-weight: normal; }
   .warn { color: var(--warn); }
   .mute { color: var(--mute); }
+  table.digest td { white-space: nowrap; }
+  @media (max-width: 40rem) {
+    body { font-size: 13px; }
+    header { flex-wrap: wrap; gap: .25rem 1rem; padding: .75rem; }
+    main { padding: .75rem; }
+  }
+  @media (max-width: 68rem) {
+    table.digest thead { display: none; }
+    table.digest, table.digest tbody, table.digest tr, table.digest td { display: block; }
+    table.digest tr { padding: .5rem 0; border-bottom: 1px solid var(--line); }
+    table.digest td { border: 0; padding: .1rem 0; white-space: normal; overflow-wrap: anywhere; }
+    table.digest td:first-child { font-weight: bold; }
+    table.digest td:not(:first-child)::before { display: inline-block; min-width: 7.5rem; color: var(--mute); }
+    table.digest td:nth-child(2)::before { content: "owner"; }
+    table.digest td:nth-child(3)::before { content: "runs"; }
+    table.digest td:nth-child(4)::before { content: "retries"; }
+    table.digest td:nth-child(5)::before { content: "last status"; }
+    table.digest td:nth-child(6)::before { content: "last error"; }
+    table.digest td:nth-child(7)::before { content: "first"; }
+    table.digest td:nth-child(8)::before { content: "last"; }
+  }
 `;
 
 export function Layout(props: { title: string; lane: Lane; children: Child }) {
