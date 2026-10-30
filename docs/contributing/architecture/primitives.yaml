@@ -3,9 +3,10 @@
 #   composes: the diff wires existing primitives together and changes none of them.
 #   extends: the diff changes the behavior, the shape or the contract of a primitive.
 #   adds: the diff adds a primitive and updates this map.
-# Commands (skill wolf-toolkit:primitives-map):
-#   node <skill>/scripts/primitives.mjs check
-#   node <skill>/scripts/primitives.mjs classify --markdown
+# A diff that adds, removes or reshapes a primitive updates this map, whatever its label.
+# Commands, from the repo root:
+#   node scripts/primitives.mjs check
+#   node scripts/primitives.mjs classify --markdown
 
 version: 1
 

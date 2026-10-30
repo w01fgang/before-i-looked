@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createApp } from '../src/app.js';
 
 const config = { adapter: 'shim', installed: '2026-10-29T14:06:00+01:00', beatEverySeconds: 60, runsDir: 'runs' };
@@ -15,10 +15,15 @@ function runsDigest(dir: string): string {
 }
 
 describe('invariants of the primitives map', () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
   it.each(htmlRoutes)('%s shows the lane banner so a copy names its lane', async (route) => {
-    process.env.LANE_MARKER = 'TEST-MARKER';
+    vi.stubEnv('LANE_ID', 'lane-test');
+    vi.stubEnv('LANE_MARKER', 'TEST-MARKER');
     const html = await (await createApp(config).request(route)).text();
-    expect(html).toContain('lane-07');
+    expect(html).toContain('lane-test');
     expect(html).toContain('TEST-MARKER');
   });
 

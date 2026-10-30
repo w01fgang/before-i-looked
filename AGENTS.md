@@ -42,7 +42,9 @@ here (a link or a config entry). Don't copy: copies drift.
 - Don't touch `runs/`: those are real nights, read-only fixtures.
 - No client JS (ADR 0001).
 - A PR names the primitives that it touches and one label: `composes`, `extends` or `adds`
-  (map and labels: `docs/contributing/architecture/primitives.yaml`).
-- A PR that adds, removes or reshapes a primitive updates the map in the same PR.
+  (map and labels: `docs/contributing/architecture/primitives.yaml`). Get them with
+  `node scripts/primitives.mjs classify --markdown`.
+- A PR that adds, removes or reshapes a primitive updates the map in the same PR, whatever its
+  label. `node scripts/primitives.mjs check` must print `primitives map ok`.
 - The map's invariants are tested in `test/invariants.test.tsx`. A new HTML route goes into
   its route list.
