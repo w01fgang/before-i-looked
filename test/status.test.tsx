@@ -1,3 +1,6 @@
+import { mkdirSync, mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createApp } from '../src/app.js';
 
@@ -31,6 +34,17 @@ describe('status board', () => {
   it('shows zero retry and fail counts for a clean night', async () => {
     const html = await (await createApp(config).request('/')).text();
     expect(html).toContain('ok 7 · retry 0 · fail 0');
+  });
+
+  it('lists a night whose log cannot be read with a dash for its counts, so the night stays visible', async () => {
+    const tmp = mkdtempSync(join(tmpdir(), 'rig-runs-'));
+    mkdirSync(join(tmp, '2026-11-05.jsonl'));
+    try {
+      const html = await (await createApp({ ...config, runsDir: tmp }).request('/')).text();
+      expect(html).toMatch(/<a href="\/digest\/2026-11-05">2026-11-05<\/a>\s*—/);
+    } finally {
+      rmSync(tmp, { recursive: true, force: true });
+    }
   });
 
   it('health answers with the lane id', async () => {

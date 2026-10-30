@@ -127,11 +127,13 @@ primitives:
     group: data
     name: Night digest
     summary: >-
-      src/digest/types.ts holds the contract of the morning digest: DigestRow, NightDigest and
-      the ReadNight signature. One row is one job of one night, with times that keep the offset
-      from the log.
+      readNight() in src/digest/read.ts reads runs/<night>.jsonl into one row per job, sorted by
+      job, with times that keep the log offset, and counts each line that does not parse. GET
+      /digest/:night renders the rows with DigestView, and GET /api/digest/:night returns them as
+      JSON; both answer 404 when the night has no file.
     code:
       - src/digest/
+      - src/views/digest.tsx
     docs: []
 
   - id: plans
