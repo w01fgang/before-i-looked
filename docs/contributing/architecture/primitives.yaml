@@ -126,8 +126,8 @@ primitives:
     name: Plans
     summary: >-
       plan.md at the root holds the one open plan. Finished plans move to docs/plans/done/.
+      plan.md is not a code root, because the file is absent between two plans.
     code:
-      - plan.md
       - docs/plans/
     docs:
       - docs/adr/0002-plans-are-files-work-is-issues.md
