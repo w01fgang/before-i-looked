@@ -77,7 +77,7 @@ function parseMap(text) {
 }
 
 function rootOwns(root, file) {
-  if (root.endsWith('/')) return file.startsWith(root);
+  if (root.endsWith('/')) return file.startsWith(root) || file === root.slice(0, -1);
   return file === root || file.replace(/\.test(\.[^./]+)$/, '$1') === root;
 }
 
@@ -102,13 +102,19 @@ function classify(files, maps) {
 
 // A path counts only when it is in the git index. An ignored or untracked path fails here, before
 // the commit, and not later in a clean checkout. A directory counts when the index holds a file under it
-// that is still on disk, or when the index holds the directory itself (a symlink or a submodule).
+// that is still on disk, or when the index holds the directory itself as a symlink or a submodule.
 function trackedIn(repoRoot) {
-  const files = git(['ls-files', '-z'], repoRoot).split('\0').filter(Boolean);
+  const modes = new Map();
+  for (const entry of git(['ls-files', '-s', '-z'], repoRoot).split('\0').filter(Boolean)) {
+    const tab = entry.indexOf('\t');
+    modes.set(entry.slice(tab + 1), entry.slice(0, entry.indexOf(' ')));
+  }
+  const files = [...modes.keys()];
   return (p) => {
     const bare = p.replace(/\/$/, '');
-    if (files.includes(bare)) return true;
-    if (!statSync(path.join(repoRoot, p)).isDirectory()) return false;
+    const isDir = statSync(path.join(repoRoot, p)).isDirectory();
+    if (!isDir) return modes.has(bare);
+    if (['120000', '160000'].includes(modes.get(bare))) return true;
     return files.some((f) => f.startsWith(`${bare}/`) && existsSync(path.join(repoRoot, f)));
   };
 }
