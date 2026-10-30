@@ -1,0 +1,164 @@
+# Primitives map of rig: the stable building blocks of this repo.
+# Each primitive owns code roots. A PR names the primitives that it touches and gets one label:
+#   composes: the diff wires existing primitives together and changes none of them.
+#   extends: the diff changes the behavior, the shape or the contract of a primitive.
+#   adds: the diff adds a primitive and updates this map.
+# Commands (skill wolf-toolkit:primitives-map):
+#   node <skill>/scripts/primitives.mjs check
+#   node <skill>/scripts/primitives.mjs classify --markdown
+
+version: 1
+
+groups:
+  - id: runtime
+    name: Process and configuration
+  - id: liveness
+    name: Heartbeat
+  - id: web
+    name: Routes and views
+  - id: data
+    name: Run logs
+  - id: workflow
+    name: Plans and issues
+
+primitives:
+  - id: server
+    group: runtime
+    name: Server entry
+    summary: >-
+      src/server.ts loads rig.json, starts the heartbeat for the lane id and serves createApp()
+      with @hono/node-server on PORT. The default port is 8787. The package.json scripts run it
+      with tsx, and tsconfig.json sets strict mode and the hono/jsx import source.
+    code:
+      - src/server.ts
+      - package.json
+      - tsconfig.json
+      - pnpm-workspace.yaml
+    docs:
+      - README.md
+
+  - id: config
+    group: runtime
+    name: Rig config
+    summary: >-
+      loadConfig() reads rig.json into the RigConfig type: adapter, installed, beatEverySeconds
+      and runsDir. It casts the JSON and does not validate it.
+    code:
+      - src/config.ts
+      - rig.json
+    docs: []
+
+  - id: lane
+    group: runtime
+    name: Lane identity
+    summary: >-
+      lane() reads LANE_ID and LANE_MARKER from the environment on each call. LANE_ID defaults
+      to lane-07 when it is unset. A blank LANE_MARKER becomes null.
+    code:
+      - src/lane.ts
+      - .env.example
+    docs:
+      - docs/adr/0003-previews-are-public-and-short-lived.md
+
+  - id: heartbeat
+    group: liveness
+    name: Heartbeat
+    summary: >-
+      beat() overwrites var/heartbeat.json with the time, the pid and the lane id.
+      startBeating() beats one time at start and then every beatEverySeconds. lastBeat() returns
+      null when the file is missing or does not parse.
+    code:
+      - src/heartbeat.ts
+    docs:
+      - docs/plans/done/2026-10-12-heartbeat.md
+
+  - id: app-routes
+    group: web
+    name: App routes
+    summary: >-
+      createApp() builds the Hono app. GET /health returns ok and the lane id as JSON. GET /
+      renders the status board inside the layout. Route tests call app.request().
+    code:
+      - src/app.tsx
+      - test/
+    docs:
+      - docs/styleguide.md
+
+  - id: layout
+    group: web
+    name: Page layout
+    summary: >-
+      Layout renders the HTML document with one inline stylesheet and no client script. Its
+      header shows the lane id and the lane marker, or "no marker set" when the marker is null.
+    code:
+      - src/views/layout.tsx
+    docs:
+      - docs/adr/0001-server-rendered-jsx-no-client-js.md
+
+  - id: status-board
+    group: web
+    name: Status board
+    summary: >-
+      readStatus() collects the adapter and install time from the RigConfig, the last beat and
+      the nights on disk. nightsOnDisk() returns the dates of the YYYY-MM-DD.jsonl files in
+      runsDir, newest first. StatusBoard renders them as a table and a list.
+    code:
+      - src/status.ts
+      - src/views/status.tsx
+    docs:
+      - docs/plans/done/2026-10-19-status-board.md
+
+  - id: run-logs
+    group: data
+    name: Run log fixtures
+    summary: >-
+      runs/<night>.jsonl holds the run log of one real night. Each line is one JSON object with
+      at, job, status and owner. The last line of 2026-10-28.jsonl is cut off and does not parse.
+      The files are read-only fixtures.
+    code:
+      - runs/
+    docs:
+      - AGENTS.md
+
+  - id: plans
+    group: workflow
+    name: Plans
+    summary: >-
+      plan.md at the root holds the one open plan. Finished plans move to docs/plans/done/.
+    code:
+      - plan.md
+      - docs/plans/
+    docs:
+      - docs/adr/0002-plans-are-files-work-is-issues.md
+
+  - id: shared-skills
+    group: workflow
+    name: Shared agent skills
+    summary: >-
+      .agents/skills/ holds one folder for each shared skill, with SKILL.md inside. The skill
+      plan-to-issues splits plan.md into GitHub issues after a human approves the split.
+    code:
+      - .agents/skills/
+    docs:
+      - AGENTS.md
+      - docs/adr/0004-issues-on-github-or-as-files.md
+
+invariants:
+  - id: every-page-shows-the-lane-banner
+    summary: >-
+      Every HTML route renders inside Layout, so every page shows the lane id and the lane marker.
+    code:
+      - src/app.tsx
+      - src/views/layout.tsx
+
+  - id: no-client-js
+    summary: >-
+      No view renders a script element. All HTML comes from hono/jsx on the server.
+    code:
+      - src/views/
+
+  - id: runs-are-read-only
+    summary: >-
+      The code only reads runs/. No function writes, moves or deletes a file in runsDir.
+    code:
+      - src/status.ts
