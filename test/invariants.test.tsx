@@ -6,7 +6,7 @@ import { createApp } from '../src/app.js';
 
 const config = { adapter: 'shim', installed: '2026-10-29T14:06:00+01:00', beatEverySeconds: 60, runsDir: 'runs' };
 
-const htmlRoutes = ['/'];
+const htmlRoutes = ['/', '/digest/2026-10-28'];
 
 function runsDigest(dir: string): string {
   const hash = createHash('sha256');
