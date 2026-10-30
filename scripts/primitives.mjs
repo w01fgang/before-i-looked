@@ -102,14 +102,14 @@ function classify(files, maps) {
 
 // A path counts only when it is in the git index. An ignored or untracked path fails here, before
 // the commit, and not later in a clean checkout. A directory counts when the index holds a file under it
-// that is still on disk.
+// that is still on disk, or when the index holds the directory itself (a symlink or a submodule).
 function trackedIn(repoRoot) {
   const files = git(['ls-files', '-z'], repoRoot).split('\0').filter(Boolean);
   return (p) => {
-    const full = path.join(repoRoot, p);
-    if (!statSync(full).isDirectory()) return files.includes(p.replace(/\/$/, ''));
-    const dir = p.endsWith('/') ? p : `${p}/`;
-    return files.some((f) => f.startsWith(dir) && existsSync(path.join(repoRoot, f)));
+    const bare = p.replace(/\/$/, '');
+    if (files.includes(bare)) return true;
+    if (!statSync(path.join(repoRoot, p)).isDirectory()) return false;
+    return files.some((f) => f.startsWith(`${bare}/`) && existsSync(path.join(repoRoot, f)));
   };
 }
 
